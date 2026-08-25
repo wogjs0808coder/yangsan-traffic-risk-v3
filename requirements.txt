@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+streamlit
+sqlalchemy
+psycopg2-binary
+pandas
+numpy
+pyarrow
+scikit-learn
+xgboost
+lightgbm
+optuna
+shap
+folium
+requests
+python-dotenv
