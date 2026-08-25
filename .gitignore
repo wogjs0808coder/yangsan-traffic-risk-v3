@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.env
+
+ml/data/real/*
+ml/data/stress_test/*
+!ml/data/real/.gitkeep
+!ml/data/stress_test/.gitkeep
+
+*.parquet
+*.csv
+
+backend/ml_artifacts/*.json
+!backend/ml_artifacts/.gitkeep
