@@ -81,7 +81,7 @@ def main() -> None:
 
         df = df.rename(columns=COLUMN_RENAME)
         keep_cols = ["accident_dt", "region", "accident_type", "vehicle_type",
-                     "age_group", "weather", "violation", "road_condition"]
+                     "age_group", "weather", "violation", "road_condition", "주야"]
         df = df[keep_cols]
 
         print(f"✅ {fname}: {len(df):,}건 ({df['region'].iloc[0]})")
