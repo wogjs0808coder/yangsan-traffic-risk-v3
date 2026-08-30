@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.routes_health import router as health_router
+from app.api.routes_history import router as history_router
 from app.api.routes_model_info import router as model_info_router
 from app.api.routes_predict import router as predict_router
 from app.api.routes_regions import router as regions_router
@@ -13,6 +14,7 @@ app.include_router(regions_router)
 app.include_router(predict_router)
 app.include_router(model_info_router)
 app.include_router(weather_router)
+app.include_router(history_router)
 
 
 @app.get("/")

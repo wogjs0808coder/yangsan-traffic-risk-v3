@@ -1,0 +1,142 @@
+/* ===== Design Tokens ===== */
+:root {
+    --color-primary: #3182F6;
+    --color-primary-dark: #1B64DA;
+    --color-primary-light: #E8F3FF;
+    --color-surface: #F9FAFB;
+    --color-border: #E5E8EB;
+    --color-text: #191F28;
+    --color-text-secondary: #8B95A1;
+    --color-success: #00C471;
+    --color-success-light: #E7F9F0;
+    --color-warning: #FF9F40;
+    --color-warning-light: #FFF4E8;
+    --color-danger: #F04452;
+}
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+html, body, [class*="css"], .stApp {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--color-text);
+}
+
+.stApp {
+    background-color: #FFFFFF;
+}
+
+/* ===== 헤더 ===== */
+.app-header {
+    padding: 8px 0 20px 0;
+}
+.app-header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+}
+.app-header p {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ===== 섹션 카드 ===== */
+.section-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 20px 20px 8px 20px;
+    margin-bottom: 20px;
+}
+.section-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.section-card .section-caption {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-bottom: 14px;
+}
+
+/* ===== 상태 배지 ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.status-badge.live { background: var(--color-success-light); color: var(--color-success); }
+.status-badge.cache { background: var(--color-warning-light); color: var(--color-warning); }
+.status-badge.default { background: #FDEDEE; color: var(--color-danger); }
+
+/* ===== 예측 결과 카드 (시그니처 요소) ===== */
+.result-card {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border-radius: 20px;
+    padding: 28px 24px;
+    color: #FFFFFF;
+    margin-top: 8px;
+}
+.result-card .result-label {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-bottom: 6px;
+}
+.result-card .result-type {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+.confidence-track {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.confidence-fill {
+    background: #FFFFFF;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+}
+.confidence-value {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.95;
+}
+
+/* ===== 버튼 ===== */
+.stButton > button {
+    background-color: var(--color-primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 12px 0;
+    transition: background-color 0.15s ease;
+}
+.stButton > button:hover {
+    background-color: var(--color-primary-dark);
+    color: #FFFFFF;
+}
+
+/* ===== 사이드바 ===== */
+[data-testid="stSidebar"] {
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+}
+
+/* ===== 구분선 ===== */
+hr {
+    border-color: var(--color-border);
+}

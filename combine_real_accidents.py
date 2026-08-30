@@ -1,17 +1,5 @@
 """
-6개 지역 실제 사고 원본 CSV를 하나로 통합해
-DB 적재 및 향후 모델 재학습에 쓸 수 있는 형태로 저장합니다.
-
-입력 파일 (ml/data/real/raw/ 안에 위치해야 함):
-    accident.csv    -> 경상남도 양산시
-    accident3.csv   -> 대전광역시
-    accident4.csv   -> 대구광역시
-    accident5.csv   -> 인천광역시
-    accidentBU.csv  -> 부산광역시
-    accidentSU.csv  -> 서울특별시
-
-출력:
-    ml/data/real/accidents_real.parquet
+6개 지역 실제 사고 원본 CSV를 하나로 통합
 """
 
 import re

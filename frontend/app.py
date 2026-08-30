@@ -1,21 +1,46 @@
+from pathlib import Path
+
 import streamlit as st
 
 from api_client import check_health, get_model_info, get_regions, get_weather, predict
 
 st.set_page_config(page_title="교통사고 위험 예측 (V3)", page_icon="🚦", layout="centered")
 
-st.title("🚦 주요시 교통사고 예측")
-st.caption("V3 — PostgreSQL + FastAPI 백엔드 연동 (프론트엔드는 UI 렌더링만 담당)")
+
+def inject_css():
+    css_path = Path(__file__).parent / "style.css"
+    st.markdown(f"<style>{css_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
+
+
+def section_header(title: str, caption: str = ""):
+    st.markdown(
+        f"""<div class="section-card">
+            <h3>{title}</h3>
+            {f'<p class="section-caption">{caption}</p>' if caption else ''}
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+inject_css()
+
+st.markdown(
+    """<div class="app-header">
+        <h1>🚦 주요시 교통사고 예측</h1>
+        <p>PostgreSQL + FastAPI + Streamlit — V3</p>
+    </div>""",
+    unsafe_allow_html=True,
+)
 
 # --- 백엔드 연결 상태 확인 ---
 with st.sidebar:
-    st.subheader("백엔드 상태")
+    st.markdown("**백엔드 상태**")
     try:
         health = check_health()
         if health.get("db_connected"):
-            st.success("API 서버 및 DB 연결 정상")
+            st.markdown('<span class="status-badge live">● API·DB 연결 정상</span>', unsafe_allow_html=True)
         else:
-            st.warning("API 서버는 응답하지만 DB 연결 실패")
+            st.markdown('<span class="status-badge cache">● DB 연결 실패</span>', unsafe_allow_html=True)
     except Exception:
         st.error("백엔드(FastAPI) 서버에 연결할 수 없습니다. uvicorn 실행 여부를 확인하세요.")
         st.stop()
@@ -27,7 +52,9 @@ except Exception as e:
     st.error(f"지역 목록을 불러오지 못했습니다: {e}")
     st.stop()
 
-region = st.selectbox("지역 선택", regions)
+with st.sidebar:
+    st.markdown("**지역 선택**")
+    region = st.selectbox("지역", regions, label_visibility="collapsed")
 
 # --- 선택한 지역의 모델 입력 스키마 로드 ---
 try:
@@ -46,19 +73,24 @@ try:
     model_features_default = weather_resp["model_features"]
 
     source = weather_raw.get("_source", "unknown")
-    if source == "live":
-        st.sidebar.success(f"실시간 기상 연동 ({weather_raw['temperature']:.1f}°C)")
-    elif source == "cache":
-        st.sidebar.warning("기상 API 응답 지연 — 캐시 데이터 사용")
-    else:
-        st.sidebar.error("기상 데이터 수신 실패 — 기본값 사용")
+    with st.sidebar:
+        st.markdown("**기상 연동 상태**")
+        if source == "live":
+            st.markdown(
+                f'<span class="status-badge live">● 실시간 연동 ({weather_raw["temperature"]:.1f}°C)</span>',
+                unsafe_allow_html=True,
+            )
+        elif source == "cache":
+            st.markdown('<span class="status-badge cache">● 캐시 데이터 사용</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('<span class="status-badge default">● 기본값 사용</span>', unsafe_allow_html=True)
 except Exception:
     model_features_default = {}
-    st.sidebar.error("기상 API 호출 실패 — 기본값 0으로 시작합니다")
+    with st.sidebar:
+        st.markdown('<span class="status-badge default">● 기상 API 호출 실패</span>', unsafe_allow_html=True)
 
-st.divider()
-st.subheader("기상 조건 입력")
-st.caption("실시간 기상 데이터로 자동 채워집니다. 직접 값을 바꿔서 시나리오를 테스트할 수도 있습니다.")
+# --- 기상 조건 입력 ---
+section_header("기상 조건", "실시간 데이터로 자동 채워집니다. 직접 조정해 시나리오를 테스트할 수 있습니다.")
 
 weather_features = {}
 cols = st.columns(2)
@@ -69,15 +101,15 @@ for i, feature_name in enumerate(numeric_features):
             feature_name, value=default_value, step=0.1
         )
 
-st.divider()
-st.subheader("사고 조건 입력")
+# --- 사고 조건 입력 ---
+section_header("사고 조건")
 
 user_inputs = {}
 for feature_name, options in categorical_options.items():
     selected = st.selectbox(feature_name, sorted(set(options)))
     user_inputs[feature_name] = selected
 
-st.divider()
+st.write("")
 
 if st.button("예측하기", type="primary", use_container_width=True):
     try:
@@ -85,5 +117,15 @@ if st.button("예측하기", type="primary", use_container_width=True):
     except Exception as e:
         st.error(f"예측 요청 실패: {e}")
     else:
-        st.success(f"예측된 사고 유형: **{result['predicted_type']}**")
-        st.metric("신뢰도(Confidence)", f"{result['confidence'] * 100:.1f}%")
+        confidence_pct = result["confidence"] * 100
+        st.markdown(
+            f"""<div class="result-card">
+                <div class="result-label">{result['region']} · 예측된 사고 유형</div>
+                <div class="result-type">{result['predicted_type']}</div>
+                <div class="confidence-track">
+                    <div class="confidence-fill" style="width: {confidence_pct:.1f}%;"></div>
+                </div>
+                <div class="confidence-value">신뢰도 {confidence_pct:.1f}%</div>
+            </div>""",
+            unsafe_allow_html=True,
+        )

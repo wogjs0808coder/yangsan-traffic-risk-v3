@@ -1,17 +1,3 @@
-"""
-V2의 data_processed/{region}/ 안에 있는 모델 관련 파일들을
-V3의 backend/ml_artifacts/{region}/ 로 이관합니다.
-
-원본 학습 데이터(X_train.csv 등) 전체를 옮기지 않고,
-/predict 추론에 필요한 3가지만 가볍게 추출합니다:
-  - model.json          (xgboost_tuned_model.json 그대로)
-  - classes.json         (classes.csv → 리스트)
-  - train_columns.json   (X_train.csv 헤더 → 컬럼 순서 리스트)
-
-사용법:
-    python migrate_v2_models.py --v2-path "C:\\Users\\user\\yangsan-traffic-risk-v2"
-"""
-
 import argparse
 import json
 import os

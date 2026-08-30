@@ -2,7 +2,7 @@
 
 V2(모놀리식 Streamlit)에서 3-Tier 아키텍처(PostgreSQL + FastAPI + Streamlit)로 전환한 버전임.
 
-📄 마이그레이션 상세 기록: [노션 - V3 마이그레이션](여기에_노션_링크_붙여넣기)
+마이그레이션 상세 기록: [노션 - V3 마이그레이션](https://app.notion.com/p/V3-3c9294bdb6c580b7a8b3c2a5124359ec?source=copy_link)
 
 ## 구조
 
