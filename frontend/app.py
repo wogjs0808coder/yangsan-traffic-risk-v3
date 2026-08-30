@@ -23,13 +23,10 @@ def inject_css():
 
 
 def section_header(title: str, caption: str = ""):
-    st.markdown(
-        f"""<div class="section-card">
-            <h3>{title}</h3>
-            {f'<p class="section-caption">{caption}</p>' if caption else ''}
-        </div>""",
-        unsafe_allow_html=True,
-    )
+    # caption이 있을 때만 p 태그 생성
+    caption_html = f'<p class="section-caption">{caption}</p>' if caption else ""
+    html_content = f'<div class="section-card"><h3>{title}</h3>{caption_html}</div>'
+    st.markdown(html_content, unsafe_allow_html=True)
 
 
 inject_css()
