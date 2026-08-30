@@ -1,4 +1,5 @@
 import os
+from datetime import date
 
 import requests
 
@@ -36,5 +37,41 @@ def predict(region: str, weather_features: dict, user_inputs: dict) -> dict:
 
 def check_health() -> dict:
     resp = requests.get(f"{API_BASE_URL}/health", timeout=5)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_prediction_history(
+    region: str | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    page: int = 1,
+    page_size: int = 20,
+) -> dict:
+    params = {"page": page, "page_size": page_size}
+    if region:
+        params["region"] = region
+    if date_from:
+        params["date_from"] = date_from.isoformat()
+    if date_to:
+        params["date_to"] = date_to.isoformat()
+    resp = requests.get(f"{API_BASE_URL}/history", params=params, timeout=10)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_prediction_stats(
+    region: str | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+) -> dict:
+    params = {}
+    if region:
+        params["region"] = region
+    if date_from:
+        params["date_from"] = date_from.isoformat()
+    if date_to:
+        params["date_to"] = date_to.isoformat()
+    resp = requests.get(f"{API_BASE_URL}/history/stats", params=params, timeout=10)
     resp.raise_for_status()
     return resp.json()
