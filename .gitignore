@@ -13,3 +13,4 @@ ml/data/stress_test/*
 
 backend/ml_artifacts/*.json
 !backend/ml_artifacts/.gitkeep
+backend/ml_artifacts_tuned/
