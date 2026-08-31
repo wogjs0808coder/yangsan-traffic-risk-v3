@@ -3,6 +3,7 @@ from datetime import date
 
 import requests
 
+
 API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 
 
@@ -56,6 +57,12 @@ def get_prediction_history(
     if date_to:
         params["date_to"] = date_to.isoformat()
     resp = requests.get(f"{API_BASE_URL}/history", params=params, timeout=10)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_accident_stats() -> dict:
+    resp = requests.get(f"{API_BASE_URL}/accidents/stats", timeout=10)
     resp.raise_for_status()
     return resp.json()
 

@@ -19,6 +19,10 @@ KNOWN_NUMERIC_COLUMNS = {
     "폭우_여부_플래그",
 }
 
+# train_region_model.py의 CATEGORICAL_FEATURES와 동일 — 2단어 프리픽스(road_condition 등)를
+# 첫 "_"에서 잘못 자르지 않도록 전체 프리픽스로 매칭한다
+CATEGORICAL_FEATURE_NAMES = ["주야", "weather", "road_condition", "vehicle_type", "age_group", "season"]
+
 
 @lru_cache(maxsize=None)
 def load_region_artifacts(region_en: str):
@@ -71,9 +75,10 @@ def get_region_schema(region_en: str) -> dict:
     train_columns를 파싱해 프론트엔드가 입력 폼을 자동 생성할 수 있게 해줍니다.
 
     - KNOWN_NUMERIC_COLUMNS에 있으면 수치형 (밑줄 포함 여부와 무관)
-    - 그 외 '_'가 있으면 원-핫 인코딩된 범주형으로 간주 (예: '가해운전자 차종_이륜차')
-      -> {"가해운전자 차종": ["이륜차", "승용차", ...]} 형태로 그룹핑
-    - 그 외 '_' 없으면 수치형으로 취급 (미지의 수치형 컬럼 대비 fallback)
+    - CATEGORICAL_FEATURE_NAMES와 전체 프리픽스로 일치하면 그 이름으로 그룹핑
+      (예: 'road_condition_건조' -> {"road_condition": ["건조", ...]})
+    - 그 외 '_'가 있으면 첫 '_' 기준 fallback 그룹핑
+    - 그 외 수치형으로 취급 (미지의 수치형 컬럼 대비 fallback)
     """
     _, _, train_columns = load_region_artifacts(region_en)
 
@@ -83,6 +88,12 @@ def get_region_schema(region_en: str) -> dict:
     for col in train_columns:
         if col in KNOWN_NUMERIC_COLUMNS:
             numeric_features.append(col)
+            continue
+
+        matched_feature = next((f for f in CATEGORICAL_FEATURE_NAMES if col.startswith(f + "_")), None)
+        if matched_feature:
+            value = col[len(matched_feature) + 1:]
+            categorical_options.setdefault(matched_feature, []).append(value)
         elif "_" in col:
             prefix, _, value = col.partition("_")
             categorical_options.setdefault(prefix, []).append(value)

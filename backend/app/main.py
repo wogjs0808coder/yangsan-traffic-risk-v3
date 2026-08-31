@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.api.routes_accidents import router as accidents_router
 from app.api.routes_health import router as health_router
 from app.api.routes_history import router as history_router
 from app.api.routes_model_info import router as model_info_router
@@ -15,6 +16,7 @@ app.include_router(predict_router)
 app.include_router(model_info_router)
 app.include_router(weather_router)
 app.include_router(history_router)
+app.include_router(accidents_router)
 
 
 @app.get("/")

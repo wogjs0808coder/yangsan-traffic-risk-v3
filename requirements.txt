@@ -12,5 +12,6 @@ lightgbm
 optuna
 shap
 folium
+streamlit-folium
 requests
 python-dotenv

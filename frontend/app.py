@@ -1,11 +1,14 @@
 from datetime import date, timedelta
 from pathlib import Path
 
+import folium
 import pandas as pd
 import streamlit as st
+from streamlit_folium import st_folium
 
 from api_client import (
     check_health,
+    get_accident_stats,
     get_model_info,
     get_prediction_history,
     get_prediction_stats,
@@ -13,6 +16,24 @@ from api_client import (
     get_weather,
     predict,
 )
+
+REGION_COORDS = {
+    "서울특별시": (37.5665, 126.9780),
+    "부산광역시": (35.1796, 129.0756),
+    "대구광역시": (35.8714, 128.6014),
+    "인천광역시": (37.4563, 126.7052),
+    "대전광역시": (36.3504, 127.3845),
+    "경상남도 양산시": (35.3350, 129.0378),
+}
+
+FEATURE_LABELS = {
+    "주야": "주야",
+    "weather": "날씨",
+    "road_condition": "노면상태",
+    "vehicle_type": "차량 종류",
+    "age_group": "나이",
+    "season": "계절",
+}
 
 st.set_page_config(page_title="교통사고 위험 예측 (V3)", page_icon="🚦", layout="centered")
 
@@ -23,10 +44,11 @@ def inject_css():
 
 
 def section_header(title: str, caption: str = ""):
-    # caption이 있을 때만 p 태그 생성
     caption_html = f'<p class="section-caption">{caption}</p>' if caption else ""
-    html_content = f'<div class="section-card"><h3>{title}</h3>{caption_html}</div>'
-    st.markdown(html_content, unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="section-card"><h3>{title}</h3>{caption_html}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 inject_css()
@@ -61,7 +83,7 @@ with st.sidebar:
     st.markdown("**지역 선택**")
     region = st.selectbox("지역", regions, label_visibility="collapsed")
 
-tab_predict, tab_history = st.tabs(["예측", "예측 이력"])
+tab_predict, tab_history, tab_map = st.tabs(["예측", "예측 이력", "지도"])
 
 with tab_predict:
     try:
@@ -110,7 +132,8 @@ with tab_predict:
 
     user_inputs = {}
     for feature_name, options in categorical_options.items():
-        selected = st.selectbox(feature_name, sorted(set(options)))
+        label = FEATURE_LABELS.get(feature_name, feature_name)
+        selected = st.selectbox(label, sorted(set(options)))
         user_inputs[feature_name] = selected
 
     st.write("")
@@ -214,3 +237,60 @@ with tab_history:
             st.dataframe(df_items, use_container_width=True, hide_index=True)
         else:
             st.caption("조건에 맞는 이력이 없습니다.")
+
+with tab_map:
+    section_header("지도 시각화", "지역별 실제 사고 분포와 예측 이력 분포를 지도에서 확인합니다.")
+
+    try:
+        accident_stats = get_accident_stats()
+        accident_counts = {row["region"]: row["count"] for row in accident_stats["by_region"]}
+    except Exception as e:
+        st.error(f"사고 데이터 통계를 불러오지 못했습니다: {e}")
+        accident_counts = {}
+
+    try:
+        pred_stats = get_prediction_stats()
+        pred_counts = {row["region"]: row["count"] for row in pred_stats["by_region"]}
+    except Exception as e:
+        st.error(f"예측 이력 통계를 불러오지 못했습니다: {e}")
+        pred_counts = {}
+
+    map_center = REGION_COORDS.get(region, [36.2, 127.8])
+    m = folium.Map(location=map_center, zoom_start=10, tiles="CartoDB positron")
+
+    max_accident = max(accident_counts.values()) if accident_counts else 1
+    accident_layer = folium.FeatureGroup(name="실제 사고 분포")
+    for region_kr, (lat, lon) in REGION_COORDS.items():
+        count = accident_counts.get(region_kr, 0)
+        is_selected = region_kr == region
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=8 + (count / max_accident) * 25,
+            color="#FFB800" if is_selected else "#3182F6",
+            weight=4 if is_selected else 1,
+            fill=True,
+            fill_color="#3182F6",
+            fill_opacity=0.6,
+            popup=f"{region_kr}: {count:,}건",
+        ).add_to(accident_layer)
+    accident_layer.add_to(m)
+
+    max_pred = max(pred_counts.values()) if pred_counts else 1
+    pred_layer = folium.FeatureGroup(name="예측 이력 분포")
+    for region_kr, (lat, lon) in REGION_COORDS.items():
+        count = pred_counts.get(region_kr, 0)
+        is_selected = region_kr == region
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=8 + (count / max_pred) * 25,
+            color="#FFB800" if is_selected else "#F04452",
+            weight=4 if is_selected else 1,
+            fill=True,
+            fill_color="#F04452",
+            fill_opacity=0.6,
+            popup=f"{region_kr}: {count:,}건",
+        ).add_to(pred_layer)
+    pred_layer.add_to(m)
+
+    folium.LayerControl().add_to(m)
+    st_folium(m, width=700, height=500)
