@@ -140,3 +140,19 @@ html, body, [class*="css"], .stApp {
 hr {
     border-color: var(--color-border);
 }
+
+/* ===== 커스텀 로딩 스피너 ===== */
+[data-testid="stSpinner"] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--color-primary-light);
+    border-radius: 12px;
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    font-size: 14px;
+}
+[data-testid="stSpinner"] svg {
+    color: var(--color-primary);
+}

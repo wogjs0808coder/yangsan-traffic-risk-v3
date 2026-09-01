@@ -64,7 +64,8 @@ st.markdown(
 with st.sidebar:
     st.markdown("**백엔드 상태**")
     try:
-        health = check_health()
+        with st.spinner("서버 상태 확인 중..."):
+            health = check_health()
         if health.get("db_connected"):
             st.markdown('<span class="status-badge live">● API·DB 연결 정상</span>', unsafe_allow_html=True)
         else:
@@ -73,7 +74,8 @@ with st.sidebar:
         st.warning("백엔드 상태를 확인하지 못했습니다 (일시적일 수 있습니다). 계속 진행합니다.")
 
 try:
-    regions = get_regions()
+    with st.spinner("지역 목록 불러오는 중..."):
+        regions = get_regions()
 except Exception as e:
     st.error(f"지역 목록을 불러오지 못했습니다: {e}")
     st.stop()
@@ -86,7 +88,8 @@ tab_predict, tab_history, tab_map = st.tabs(["예측", "예측 이력", "지도"
 
 with tab_predict:
     try:
-        schema = get_model_info(region)
+        with st.spinner(f"{region} 모델 정보 불러오는 중..."):
+            schema = get_model_info(region)
     except Exception as e:
         st.error(f"{region} 모델 정보를 불러오지 못했습니다: {e}")
         st.stop()
@@ -95,7 +98,8 @@ with tab_predict:
     categorical_options: dict[str, list[str]] = schema["categorical_options"]
 
     try:
-        weather_resp = get_weather(region)
+        with st.spinner("실시간 기상 데이터 불러오는 중..."):
+            weather_resp = get_weather(region)
         weather_raw = weather_resp["weather"]
         model_features_default = weather_resp["model_features"]
 
@@ -139,7 +143,8 @@ with tab_predict:
 
     if st.button("예측하기", type="primary", use_container_width=True):
         try:
-            result = predict(region, weather_features, user_inputs)
+            with st.spinner("예측 중입니다..."):
+                result = predict(region, weather_features, user_inputs)
         except Exception as e:
             st.error(f"예측 요청 실패: {e}")
         else:
@@ -174,7 +179,8 @@ with tab_history:
     region_param = None if hist_region == "전체" else hist_region
 
     try:
-        stats = get_prediction_stats(region_param, date_from, date_to)
+        with st.spinner("통계 불러오는 중..."):
+            stats = get_prediction_stats(region_param, date_from, date_to)
     except Exception as e:
         st.error(f"통계를 불러오지 못했습니다: {e}")
         stats = None
@@ -223,9 +229,10 @@ with tab_history:
             st.session_state.hist_page += 1
 
     try:
-        history = get_prediction_history(
-            region_param, date_from, date_to, page=st.session_state.hist_page, page_size=20
-        )
+        with st.spinner("이력 불러오는 중..."):
+            history = get_prediction_history(
+                region_param, date_from, date_to, page=st.session_state.hist_page, page_size=20
+            )
     except Exception as e:
         st.error(f"이력을 불러오지 못했습니다: {e}")
         history = None
@@ -245,14 +252,16 @@ with tab_map:
     section_header("지도 시각화", "지역별 실제 사고 분포와 예측 이력 분포를 지도에서 확인합니다.")
 
     try:
-        accident_stats = get_accident_stats()
+        with st.spinner("사고 데이터 불러오는 중..."):
+            accident_stats = get_accident_stats()
         accident_counts = {row["region"]: row["count"] for row in accident_stats["by_region"]}
     except Exception as e:
         st.error(f"사고 데이터 통계를 불러오지 못했습니다: {e}")
         accident_counts = {}
 
     try:
-        pred_stats = get_prediction_stats()
+        with st.spinner("예측 이력 불러오는 중..."):
+            pred_stats = get_prediction_stats()
         pred_counts = {row["region"]: row["count"] for row in pred_stats["by_region"]}
     except Exception as e:
         st.error(f"예측 이력 통계를 불러오지 못했습니다: {e}")
