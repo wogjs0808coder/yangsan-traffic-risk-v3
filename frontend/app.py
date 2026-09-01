@@ -146,7 +146,7 @@ with tab_predict:
         else:
             st.session_state["last_prediction"] = result
 
-    if "last_prediction" in st.session_state:
+    if "last_prediction" in st.session_state and st.session_state["last_prediction"]["region"] == region:
         result = st.session_state["last_prediction"]
         confidence_pct = result["confidence"] * 100
         st.markdown(
