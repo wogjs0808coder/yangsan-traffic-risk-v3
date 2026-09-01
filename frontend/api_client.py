@@ -2,23 +2,26 @@ import os
 from datetime import date
 
 import requests
-
+import streamlit as st
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 
 
+@st.cache_data(ttl=3600)
 def get_regions() -> list[str]:
     resp = requests.get(f"{API_BASE_URL}/regions", timeout=5)
     resp.raise_for_status()
     return resp.json()["regions"]
 
 
+@st.cache_data(ttl=3600)
 def get_model_info(region: str) -> dict:
     resp = requests.get(f"{API_BASE_URL}/model-info/{region}", timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
+@st.cache_data(ttl=300)
 def get_weather(region: str) -> dict:
     resp = requests.get(f"{API_BASE_URL}/weather/{region}", timeout=10)
     resp.raise_for_status()
@@ -42,6 +45,7 @@ def check_health() -> dict:
     return resp.json()
 
 
+@st.cache_data(ttl=30)
 def get_prediction_history(
     region: str | None = None,
     date_from: date | None = None,
@@ -61,12 +65,14 @@ def get_prediction_history(
     return resp.json()
 
 
+@st.cache_data(ttl=30)
 def get_accident_stats() -> dict:
     resp = requests.get(f"{API_BASE_URL}/accidents/stats", timeout=10)
     resp.raise_for_status()
     return resp.json()
 
 
+@st.cache_data(ttl=30)
 def get_prediction_stats(
     region: str | None = None,
     date_from: date | None = None,

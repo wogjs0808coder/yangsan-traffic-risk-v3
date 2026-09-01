@@ -144,18 +144,22 @@ with tab_predict:
         except Exception as e:
             st.error(f"예측 요청 실패: {e}")
         else:
-            confidence_pct = result["confidence"] * 100
-            st.markdown(
-                f"""<div class="result-card">
-                    <div class="result-label">{result['region']} · 예측된 사고 유형</div>
-                    <div class="result-type">{result['predicted_type']}</div>
-                    <div class="confidence-track">
-                        <div class="confidence-fill" style="width: {confidence_pct:.1f}%;"></div>
-                    </div>
-                    <div class="confidence-value">신뢰도 {confidence_pct:.1f}%</div>
-                </div>""",
-                unsafe_allow_html=True,
-            )
+            st.session_state["last_prediction"] = result
+
+    if "last_prediction" in st.session_state:
+        result = st.session_state["last_prediction"]
+        confidence_pct = result["confidence"] * 100
+        st.markdown(
+            f"""<div class="result-card">
+                <div class="result-label">{result['region']} · 예측된 사고 유형</div>
+                <div class="result-type">{result['predicted_type']}</div>
+                <div class="confidence-track">
+                    <div class="confidence-fill" style="width: {confidence_pct:.1f}%;"></div>
+                </div>
+                <div class="confidence-value">신뢰도 {confidence_pct:.1f}%</div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
 
 with tab_history:
     section_header("예측 이력", "지역별/기간별 예측 통계와 상세 이력을 확인합니다.")
