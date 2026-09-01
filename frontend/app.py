@@ -70,8 +70,7 @@ with st.sidebar:
         else:
             st.markdown('<span class="status-badge cache">● DB 연결 실패</span>', unsafe_allow_html=True)
     except Exception:
-        st.error("백엔드(FastAPI) 서버에 연결할 수 없습니다. uvicorn 실행 여부를 확인하세요.")
-        st.stop()
+        st.warning("백엔드 상태를 확인하지 못했습니다 (일시적일 수 있습니다). 계속 진행합니다.")
 
 try:
     regions = get_regions()

@@ -39,8 +39,9 @@ def predict(region: str, weather_features: dict, user_inputs: dict) -> dict:
     return resp.json()
 
 
+@st.cache_data(ttl=15)
 def check_health() -> dict:
-    resp = requests.get(f"{API_BASE_URL}/health", timeout=5)
+    resp = requests.get(f"{API_BASE_URL}/health", timeout=10)
     resp.raise_for_status()
     return resp.json()
 
