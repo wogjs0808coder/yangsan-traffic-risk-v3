@@ -3,15 +3,12 @@
 경상남도 양산시 대상으로 만들었던 [V1](https://github.com/wogjs0808coder/yangsan-traffic-risk)을 서울·부산·대구·인천·대전·경남(양산) 6개 광역시도로 확장한 [V2](https://github.com/wogjs0808coder/yangsan-traffic-risk-v2)를, PostgreSQL + FastAPI + Streamlit 3-tier 아키텍처로 다시 설계한 프로젝트다.
 
 V1 노션: https://fragrant-dewberry-0a3.notion.site/3c0294bdb6c580c394e1dfc48ae705a6
-
 V1 서비스: https://yangsan-traffic-risk-gheuv599appgwkiqv4mxbn6.streamlit.app/
 
 V2 노션: https://fragrant-dewberry-0a3.notion.site/V2-3c2294bdb6c5802590bed7b7dcf79ea4
-
 V2 서비스: https://yangsan-traffic-risk-v2-xvqo3ouenhkpuczsapdxsi.streamlit.app/
 
 V3 노션: https://fragrant-dewberry-0a3.notion.site/V3-3c9294bdb6c580b7a8b3c2a5124359ec?pvs=74
-
 V3 서비스: https://yangsan-traffic-risk-v3-x5lhgvbdv7h2rzvawxdpzp.streamlit.app/
 
 ## V2와의 차이
@@ -40,7 +37,7 @@ Python 3 기반. 백엔드는 FastAPI(비동기 웹 프레임워크) + SQLAlchem
 목적은 6개 지역(서울·부산·대구·인천·대전·양산)의 실제 사고 데이터(215,220건, 2022~2024)로 사고유형을 예측하는 것. 기능 요구사항은 지역별 예측, 실시간 기상 연동, 예측 이력 조회(통계+상세), 지역별 사고/예측 분포 지도 시각화. 비기능 요구사항은 지역별 모델 성능(weighted-F1) 최적화와 외부 배포를 통한 접근성 확보.
 
 **화면 설계**
-Streamlit 탭 구조는 예측 / 예측 이력 / 지도로 구성. 디자인 시스템 적용(Pretendard 폰트, `#3182F6` 브랜드 컬러, 라이트 모드 고정). 사이드바에 백엔드 상태, 지역 선택, 기상 연동 상태 표시. 예측 결과는 그라디언트 카드 + 신뢰도 바로 시각화.
+Streamlit 탭 구조는 예측 / 예측 이력 / 지도로 구성. Toss 스타일 디자인 시스템 적용(Pretendard 폰트, `#3182F6` 브랜드 컬러, 라이트 모드 고정). 사이드바에 백엔드 상태, 지역 선택, 기상 연동 상태 표시. 예측 결과는 그라디언트 카드 + 신뢰도 바로 시각화.
 
 **애플리케이션 설계**
 3-tier 아키텍처: PostgreSQL(Neon) — FastAPI(Render) — Streamlit(Streamlit Cloud). 백엔드 모듈 구조는 `api/`(라우터), `models/`(추론 로직), `schemas/`(Pydantic), `db/`(세션, ORM), `core/`(설정)로 분리. 지역별 모델 아티팩트를 `backend/ml_artifacts/{region}/`에 분리 저장(model.json, classes.json, train_columns.json). 환경변수 기반 설정(`DATABASE_URL`)으로 로컬/배포 환경 분리.
